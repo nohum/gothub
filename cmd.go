@@ -111,12 +111,20 @@ func uploadcmd(opt Options) error {
 	}
 
 	if opt.Upload.Replace {
-		for _, asset := range rel.Assets {
+		// assets with state 'new' are not listed in release responses, only in
+		// assets responses, cf. https://github.com/itchio/github-release/issues/1
+		assets, err := ReleaseAssets(user, repo, rel.Id, token)
+		if err != nil {
+			return err
+		}
+
+		for _, asset := range assets {
+			vprintln("looking at ", asset.Id, asset.Name)
 			if asset.Name == name {
 				vprintln("deleting previous asset version for ", name)
 
-				resp, err := httpDelete(ApiURL()+fmt.Sprintf(ASSET_DOWNLOAD_URI,
-					user, repo, asset.Id), token)
+				assetURL := ApiURL() + fmt.Sprintf(ASSET_DOWNLOAD_URI, user, repo, asset.Id)
+				resp, err := httpDelete(assetURL, token)
 				if resp != nil {
 					defer resp.Body.Close()
 				}

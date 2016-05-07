@@ -10,6 +10,7 @@ import (
 
 const (
 	RELEASE_LIST_URI    = "/repos/%s/%s/releases%s"
+	RELEASE_ASSETS_URI  = "/repos/%s/%s/releases/%d/assets%s"
 	RELEASE_LATEST_URI  = "/repos/%s/%s/releases/latest%s"
 	RELEASE_DATE_FORMAT = "02/01/2006 at 15:04"
 )
@@ -77,6 +78,20 @@ func Releases(user, repo, token string) ([]Release, error) {
 	}
 
 	return releases, nil
+}
+
+func ReleaseAssets(user, repo string, releaseID int, token string) ([]Asset, error) {
+	if token != "" {
+		token = "?access_token=" + token
+	}
+
+	var assets []Asset
+	err := GithubGet(fmt.Sprintf(RELEASE_ASSETS_URI, user, repo, releaseID, token), &assets)
+	if err != nil {
+		return nil, err
+	}
+
+	return assets, nil
 }
 
 func latestReleaseApi(user, repo, token string) (*Release, error) {
