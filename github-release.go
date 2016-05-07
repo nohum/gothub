@@ -102,7 +102,7 @@ func main() {
 	goptions.ParseAndFail(&options)
 
 	if options.Version {
-		fmt.Printf("github-release v%s\n", VERSION)
+		fmt.Printf("gothub v%s\n", VERSION)
 		return
 	}
 

@@ -112,7 +112,7 @@ func uploadcmd(opt Options) error {
 
 	if opt.Upload.Replace {
 		// assets with state 'new' are not listed in release responses, only in
-		// assets responses, cf. https://github.com/itchio/github-release/issues/1
+		// assets responses, cf. https://github.com/itchio/gothub/issues/1
 		assets, err := ReleaseAssets(user, repo, rel.Id, token)
 		if err != nil {
 			return err
