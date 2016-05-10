@@ -82,11 +82,12 @@ func Releases(user, repo, token string) ([]Release, error) {
 
 func ReleaseAssets(user, repo string, releaseID int, token string) ([]Asset, error) {
 	if token != "" {
-		token = "?access_token=" + token
+		token = "&access_token=" + token
 	}
+	query := fmt.Sprintf("?per_page=100%s", token)
 
 	var assets []Asset
-	err := GithubGet(fmt.Sprintf(RELEASE_ASSETS_URI, user, repo, releaseID, token), &assets)
+	err := GithubGet(fmt.Sprintf(RELEASE_ASSETS_URI, user, repo, releaseID, query), &assets)
 	if err != nil {
 		return nil, err
 	}
