@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 const (
@@ -104,13 +105,13 @@ func GithubGet(uri string, v interface{}) error {
 		defer resp.Body.Close()
 	}
 	if err != nil {
-		return fmt.Errorf("could not fetch releases, %v", err)
+		return fmt.Errorf("could not fetch, %v", err)
 	}
 
 	vprintln("GET", ApiURL()+uri, "->", resp)
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("github did not response with 200 OK but with %v", resp.Status)
+		return fmt.Errorf("github did not respond with 200 OK but with %v", resp.Status)
 	}
 
 	var r io.Reader = resp.Body
@@ -121,6 +122,11 @@ func GithubGet(uri string, v interface{}) error {
 
 	if err = json.NewDecoder(r).Decode(v); err != nil {
 		return fmt.Errorf("could not unmarshall JSON into Release struct, %v", err)
+	}
+
+	regex, _ := regexp.Compile(`<`+ApiURL()+`([^>]*)>; rel="next"`)
+	if regex.FindStringIndex(resp.Header.Get("Link")) != nil {
+		return GithubGet(regex.FindStringSubmatch(resp.Header.Get("Link"))[1], v)
 	}
 
 	return nil
