@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
 )
 
@@ -99,7 +100,7 @@ func DoAuthRequest(method, url, bodyType, token string, headers map[string]strin
 	return resp, nil
 }
 
-func GithubGet(uri string, v interface{}) error {
+func GithubGetAll(uri string, v interface{}) error {
 	resp, err := http.Get(ApiURL() + uri)
 	if resp != nil {
 		defer resp.Body.Close()
@@ -124,9 +125,55 @@ func GithubGet(uri string, v interface{}) error {
 		return fmt.Errorf("could not unmarshall JSON into Release struct, %v", err)
 	}
 
-	regex, _ := regexp.Compile(`<`+ApiURL()+`([^>]*)>; rel="next"`)
+	regex, _ := regexp.Compile(`<` + ApiURL() + `([^>]*)>; rel="next"`)
 	if regex.FindStringIndex(resp.Header.Get("Link")) != nil {
-		return GithubGet(regex.FindStringSubmatch(resp.Header.Get("Link"))[1], v)
+		typ := reflect.TypeOf(v)
+		if typ.Kind() != reflect.Ptr {
+			panic("GithubGetAll: expected pointer (to slice)")
+		}
+
+		innerTyp := typ.Elem()
+		if innerTyp.Kind() != reflect.Slice {
+			panic("GithubGetAll: expected (pointer to) slice")
+		}
+
+		v2 := reflect.New(innerTyp)
+
+		err := GithubGetAll(regex.FindStringSubmatch(resp.Header.Get("Link"))[1], v2.Interface())
+		if err != nil {
+			return err
+		}
+
+		slice1 := reflect.ValueOf(v).Elem()
+		slice1.Set(reflect.AppendSlice(slice1, v2.Elem()))
+	}
+
+	return nil
+}
+
+func GithubGet(uri string, v interface{}) error {
+	resp, err := http.Get(ApiURL() + uri)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return fmt.Errorf("could not fetch, %v", err)
+	}
+
+	vprintln("GET", ApiURL()+uri, "->", resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("github did not respond with 200 OK but with %v", resp.Status)
+	}
+
+	var r io.Reader = resp.Body
+	if VERBOSITY > 0 {
+		vprintln("BODY:")
+		r = io.TeeReader(resp.Body, os.Stdout)
+	}
+
+	if err = json.NewDecoder(r).Decode(v); err != nil {
+		return fmt.Errorf("could not unmarshall JSON into Release struct, %v", err)
 	}
 
 	return nil

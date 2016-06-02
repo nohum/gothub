@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const (
 	TAGS_URI = "/repos/%s/%s/tags%s"
@@ -27,7 +25,7 @@ func Tags(user, repo, token string) ([]Tag, error) {
 		token = "?access_token=" + token
 	}
 
-	err := GithubGet(fmt.Sprintf(TAGS_URI, user, repo, token), &tags)
+	err := GithubGetAll(fmt.Sprintf(TAGS_URI, user, repo, token), &tags)
 	if err != nil {
 		return nil, err
 	}
