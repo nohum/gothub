@@ -72,7 +72,7 @@ func Releases(user, repo, token string) ([]Release, error) {
 		token = "?access_token=" + token
 	}
 	var releases []Release
-	err := GithubGet(fmt.Sprintf(RELEASE_LIST_URI, user, repo, token), &releases)
+	err := GithubGetAll(fmt.Sprintf(RELEASE_LIST_URI, user, repo, token), &releases)
 	if err != nil {
 		return nil, err
 	}
