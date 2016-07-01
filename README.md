@@ -52,7 +52,7 @@ $ gothub --help
 $ git tag ... && git push --tags
 
 # check the current tags and existing releases of the repo
-$ gothub-release info -u aktau -r gofinance
+$ gothub info -u aktau -r gofinance
 git tags:
 - v0.1.0 (commit: https://api.github.com/repos/aktau/gofinance/commits/f562727ce83ce8971a8569a1879219e41d56a756)
 releases:
