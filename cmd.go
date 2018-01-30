@@ -47,6 +47,8 @@ func infocmd(opt Options) error {
 		renderer = renderInfoJSON
 	} else if opt.Info.DescriptionOnly {
 		renderer = renderInfoDescriptionOnly
+	} else if opt.Info.NameOnly {
+		renderer = renderInfoNameOnly
 	}
 
 	// List releases + assets.
@@ -102,6 +104,14 @@ func renderInfoJSON(tags []Tag, releases []Release) error {
 func renderInfoDescriptionOnly(tags []Tag, releases []Release) error {
 	for _, release := range releases {
 		fmt.Println(release.Description)
+	}
+
+	return nil
+}
+
+func renderInfoNameOnly(tags []Tag, releases []Release) error {
+	for _, release := range releases {
+		fmt.Println(release.Name)
 	}
 
 	return nil

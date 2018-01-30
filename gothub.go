@@ -69,6 +69,7 @@ type Options struct {
 		Tag             string `goptions:"-t, --tag, description='Git tag to query (optional)'"`
 		JSON            bool   `goptions:"-j, --json, description='Emit info as JSON instead of text'"`
 		DescriptionOnly bool   `goptions:"-d, --description, description='Only output description of release (optional)'"`
+		NameOnly        bool   `goptions:"-n, --name, description='Only output name of release (optional)'"`
 	} `goptions:"info"`
 }
 
