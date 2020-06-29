@@ -85,7 +85,7 @@ var commands = map[goptions.Verbs]Command{
 }
 
 var (
-	VERBOSITY = 0
+	VERBOSITY = 100
 )
 
 var (

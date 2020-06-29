@@ -149,7 +149,11 @@ func (c Client) getPaginated(uri string) (io.ReadCloser, error) {
 		v.Set("access_token", c.Token)
 	}
 	u.RawQuery = v.Encode()
-	resp, err := http.Get(u.String())
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	req.Header.Set("Authorization", "token "+token)
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
